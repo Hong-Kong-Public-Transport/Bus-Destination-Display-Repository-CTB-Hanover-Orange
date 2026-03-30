@@ -34,13 +34,27 @@ jobs:
           distribution: 'zulu'
       - name: Run JAR
         run: java -jar build/libs/Bus-Destination-Display-Processor-*-all.jar "${{ secrets.BASE_URL }}" "ctb_hanover_orange" "display"
-      - name: Stage changes
-        run: rm -r build && git add -A && git status
-      - name: Commit changes
-        uses: iarekylew00t/verified-bot-commit@main
+      - name: Load SSH signing key
+        uses: webfactory/ssh-agent@master
         with:
-          message: Update displays
-          files: |
-            **
-          auto-stage: false
-          max-retries: 5
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - name: Configure Git + enable SSH commit signing
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config gpg.format ssh
+          git config commit.gpgsign true
+          PUB_KEY="$(ssh-add -L | head -n 1)"
+          git config user.signingkey "${PUB_KEY}"
+      - name: Stage changes
+        run: git add -A
+      - name: Commit & push (signed)
+        shell: bash
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Update displays"
+          git push
