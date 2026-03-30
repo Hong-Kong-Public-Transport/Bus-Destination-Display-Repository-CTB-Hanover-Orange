@@ -47,6 +47,8 @@ jobs:
           git config commit.gpgsign true
           PUB_KEY="$(ssh-add -L | head -n 1)"
           git config user.signingkey "${PUB_KEY}"
+          echo "41898282+github-actions[bot]@users.noreply.github.com ${PUB_KEY}" > .allowed_signers
+          git config gpg.ssh.allowedSignersFile "$(pwd)/.allowed_signers"
       - name: Stage changes
         run: rm -r build && git add -A
       - name: Commit and push
