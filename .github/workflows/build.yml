@@ -40,5 +40,6 @@ jobs:
         uses: iarekylew00t/verified-bot-commit@main
         with:
           message: Update displays
-          files: **
+          files: |
+            **
           max-retries: 5
