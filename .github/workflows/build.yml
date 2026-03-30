@@ -43,17 +43,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          ssh-add -L | head -n 1 > ssh_key.pub
+          ssh-add -L | head -n 1 > ${{ github.workspace }}/ssh_key.pub
           git config gpg.format ssh
-          git config user.signingkey "$(pwd)/ssh_key.pub"
+          git config user.signingkey "${{ github.workspace }}/ssh_key.pub"
           git config commit.gpgsign true
           git config gpg.ssh.program "ssh-keygen"
-          echo "41898282+github-actions[bot]@users.noreply.github.com $(cat ssh_key.pub)" > .allowed_signers
-          git config gpg.ssh.allowedSignersFile "$(pwd)/.allowed_signers"
+          echo "41898282+github-actions[bot]@users.noreply.github.com $(cat ${{ github.workspace }}/ssh_key.pub)" > ${{ github.workspace }}/.allowed_signers
+          git config gpg.ssh.allowedSignersFile "${{ github.workspace }}/.allowed_signers"
       - name: Stage changes
         run: |
           git add -A
-          git reset build/** .allowed_signers ssh_key.pub
+          git reset ${{ github.workspace }}/build/** ${{ github.workspace }}/ssh_key.pub ${{ github.workspace }}/.allowed_signers
       - name: Commit and push
         shell: bash
         run: |
@@ -61,5 +61,5 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          git commit -m "Update displays"
+          git commit -S -m "Update displays"
           git push
