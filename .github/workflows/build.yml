@@ -51,7 +51,9 @@ jobs:
           echo "41898282+github-actions[bot]@users.noreply.github.com $(cat ssh_key.pub)" > .allowed_signers
           git config gpg.ssh.allowedSignersFile "$(pwd)/.allowed_signers"
       - name: Stage changes
-        run: rm -r build && rm -f .allowed_signers ssh_key.pub && git add -A
+        run: |
+          git add -A
+          git reset build/** .allowed_signers ssh_key.pub
       - name: Commit and push
         shell: bash
         run: |
